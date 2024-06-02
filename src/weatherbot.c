@@ -136,6 +136,8 @@ int main(int argc, char *argv[]) {
                 }
             }
             offset = updates[index].update_id + 1;
+            // prevent requesting to many city names as there is a limit on the number of requests 1 per second
+            sleep(1);
         }
         telebot_put_updates(updates, count);
 
