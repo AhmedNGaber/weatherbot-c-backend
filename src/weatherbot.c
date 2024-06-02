@@ -56,19 +56,6 @@ int main(int argc, char *argv[]) {
     printf("Welcome to weathocastbot\n");
     printf("Token: %s\n", token);
 
-    //TBD: Call Rust functions
-    set_city_name("Cairo");
-    set_city_geometry(55.12345, 66.12345);
-    int err;
-    err = is_city_valid();
-    if (err != 0){
-        fprintf(stderr, "Invalid city err: %d\n",err);
-    }
-    double temperature;
-    temperature = get_city_temperature();
-    printf("Temperature: %f\n", temperature);
-
-
     //For Testing: Call telebot functions with token
     telebot_user_t me;
     telebot_handler_t handle;
@@ -127,7 +114,19 @@ int main(int argc, char *argv[]) {
                     }
                     else
                     {
-                        snprintf(str, SIZE_OF_ARRAY(str), "Current temprature for <b>%s</b> is:", message.text);
+                        int err;
+                        err = is_city_name_valid(message.text);
+                        if (err != 0)
+                        {
+                            snprintf(str, SIZE_OF_ARRAY(str), "Sorry! <b>%s</b> is not a valid city name!\n"\
+                                                              "please try again", message.text);
+                        }
+                        else
+                        {
+                            double temperature;
+                            temperature = get_city_temperature_by_name(message.text);
+                            snprintf(str, SIZE_OF_ARRAY(str), "Current temprature for <b>%s</b> is: <b>%2.1lf</b>°C", message.text, temperature);
+                        }
                     }
                     ret = telebot_send_message(handle, message.chat->id, str, "HTML", false, false, updates[index].message.message_id, "");
                 }
