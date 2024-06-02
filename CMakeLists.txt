@@ -14,3 +14,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 include_directories(${APR1_INCLUDE_DIRS})
 
 target_link_libraries(${PROJECT_NAME} ${APR1_LIBRARIES})
+
+#TBD: Check if the path can be more configurable
+target_link_libraries(${PROJECT_NAME} ${CMAKE_CURRENT_SOURCE_DIR}/../weatherbot-rust-c-wrapper/target/debug/libweatherbot_rust_c_wrapper.so)

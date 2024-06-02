@@ -57,7 +57,16 @@ int main(int argc, char *argv[]) {
 
     //TBD: Call telebot functions with token
     //TBD: Call Rust functions
-
+    set_city_name("Cairo");
+    set_city_geometry(55.12345, 66.12345);
+    int err;
+    err = is_city_valid();
+    if (err != 0){
+        fprintf(stderr, "Invalid city err: %d\n",err);
+    }
+    double temperature;
+    temperature = get_city_temperature();
+    printf("Temperature: %f\n", temperature);
     goto exit;
 
 apr_error:
