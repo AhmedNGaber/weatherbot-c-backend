@@ -30,3 +30,6 @@ endif()
 
 include_directories(${TELEBOTLIB_PATH}/include)
 target_link_libraries(${PROJECT_NAME} ${CMAKE_BINARY_DIR}/telebot/libtelebot.so)
+
+# include test directory
+add_subdirectory(test)

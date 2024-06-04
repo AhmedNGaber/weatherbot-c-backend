@@ -54,6 +54,15 @@ int find_city_info_cached(const char* city_name, float lat, float lng) {
     return TEMPERATURE_NOT_CACHED;
 }
 
+/**
+ * caches the city information to save time in requesting the temperature again.
+ *
+ * @param city_name The city name.
+ * @param lat The latitude.
+ * @param lng The longitude.
+ * @param temperature of the city/location.
+ * @return 0 if the city information is cached successfully.
+ */
 int cache_city_info(const char* city_name, float lat, float lng, float temperature) {
 
     //TBD: Use APR lib to cache the temperatures to not call open-meteo API every time
