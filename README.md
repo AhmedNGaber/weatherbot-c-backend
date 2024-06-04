@@ -24,7 +24,7 @@ git clone https://github.com/AhmedNGaber/weatherbot-rust-c-wrapper.git
 
 
 ### Build instructions
-####The required Rust wrapper Lib
+#### The required Rust wrapper Lib
 ```
 cd weatherbot-rust-c-wrapper
 cargo build
