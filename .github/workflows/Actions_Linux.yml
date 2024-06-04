@@ -25,14 +25,26 @@ jobs:
     - name: Prepare Setup
       run: sudo apt install -y libapr1-dev libcurl4-openssl-dev libjson-c-dev cmake binutils make rustc pkg-config
         
-    - name: Clone Required Libraries
-      run: git clone https://github.com/smartnode/telebot.git
-           git clone https://github.com/AhmedNGaber/weatherbot-rust-c-wrapper.git
-      
+    - name: Clone smartnode/telebot PUBLIC repository
+      uses: actions/checkout@v4
+      with:
+        repository: 'smartnode/telebot'
+        ref: master
+        path: telebot
+
+    - name: Clone AhmedNGaber/weatherbot-rust-c-wrapper PRIVATE repository
+      uses: actions/checkout@v4
+      with:
+        repository: 'AhmedNGaber/weatherbot-rust-c-wrapper'
+        ref: master
+        token: ${{ secrets.PA_TOKEN_ACTIONS }}
+        path: weatherbot-rust-c-wrapper
+
     - name: Build 
       # Build Rust library
-      run: cd ${{github.workspace}}/weatherbot-rust-c-wrapper && cargo build
-           cd ${{github.workspace}}/build
+      run: cd ${{github.workspace}}/weatherbot-rust-c-wrapper && cargo build &&
+           cd ${{github.workspace}} && mkdir build -p &&
+           cd ${{github.workspace}}/build &&
            cmake .. && make telebot && make
 
     - name: Test
