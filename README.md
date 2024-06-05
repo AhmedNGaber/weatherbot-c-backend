@@ -39,3 +39,8 @@ cmake ..
 make telebot
 make
 ```
+
+## Open Points
+
+  - Impementing caching the data to not request it again:- City Name, latitude, Longitude and their temperature
+  - Recheck the design while impemnting the cache functions to use multi-threaded approach to run some parts in parallel
