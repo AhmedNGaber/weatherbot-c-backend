@@ -22,6 +22,7 @@ void test_city_info_parser() {
     assert(lng < 180.0);
     assert(lng > -180.0);
 
+
     // Test case 2: Invalid latitude:longitude format
     result = city_info_parser("26.2540429.26759", &lat, &lng);
     assert(result == INVALID_GEOCODE);

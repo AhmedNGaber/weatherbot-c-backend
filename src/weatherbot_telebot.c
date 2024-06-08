@@ -72,17 +72,32 @@ int run_weatherbot(char* token) {
                                      message.text);
                             break;
                         case VALID_GEOCODE:
+                            /* Check first if the requeste location was already cached */
+                            temperature = find_city_info_cached(NULL, lat, lng);
+                            if (temperature != TEMPERATURE_NOT_CACHED)
+                            {
+                                snprintf(str, SIZE_OF_ARRAY(str), "Current temperature for <b>%f:%f:</b> is: <b>%2.1lf</b>°C", lat, lng, temperature);
+                                break;
+                            }
                             temperature = get_city_temperature_by_geometry(lat, lng);
                             snprintf(str, SIZE_OF_ARRAY(str), "Current temperature for <b>%f:%f:</b> is: <b>%2.1lf</b>°C", lat, lng, temperature);
                             break;
                         case VALID_STRING:
+                            /* Check first if the requeste location was already cached */
+                            temperature = find_city_info_cached(message.text, lat, lng);
+                            if (temperature != TEMPERATURE_NOT_CACHED)
+                            {
+                                snprintf(str, SIZE_OF_ARRAY(str), "Current temperature for <b>%s</b> is: <b>%2.1lf</b>°C", message.text, temperature);
+                                break;
+                            }
+
                             ret = is_city_name_valid(message.text);
                             if (ret) {
                                 snprintf(str, SIZE_OF_ARRAY(str), "Sorry! <b>%s</b> is not a valid city name!", message.text);
                             } else {
                                 /* Check first if the requeste location was already cached */
-                                ret = find_city_info_cached(message.text, lat, lng);
-                                if (ret == TEMPERATURE_NOT_CACHED)
+                                temperature = find_city_info_cached(message.text, lat, lng);
+                                if (temperature == TEMPERATURE_NOT_CACHED)
                                 {
                                     temperature = get_city_temperature_by_name(message.text);
                                     cache_city_info(message.text, lat, lng, temperature);
