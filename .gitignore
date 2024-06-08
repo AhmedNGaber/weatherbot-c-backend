@@ -19,3 +19,4 @@ bin/
 
 .token
 telebot/
+weatherbot-rust-c-wrapper

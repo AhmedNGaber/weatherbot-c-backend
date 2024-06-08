@@ -7,6 +7,7 @@
 
 int run_weatherbot(char* token) {
     char str[4096];
+    bool cache_hit = false;
     float lat, lng, temperature;
     int index, count, ret, offset = -1;
     telebot_user_t me;
@@ -60,8 +61,21 @@ int run_weatherbot(char* token) {
                 }
                 else
                 {
-                    ret = city_info_parser(message.text, &lat, &lng);
+                    /* Check first if the requeste location was already cached */
+                    cache_hit = find_city_info_cached(message.text, &temperature);
+                    if (cache_hit)
+                    {
+                        snprintf(str, SIZE_OF_ARRAY(str), "Current temperature for <b>%s</b> is: <b>%2.1lf</b>°C", message.text, temperature);
+                        telebot_ret = telebot_send_message(handle, message.chat->id, str, "HTML", false, false, updates[index].message.message_id, "");
+                        if (telebot_ret != TELEBOT_ERROR_NONE)
+                        {
+                            printf("Failed to send message: %d \n", ret);
+                        }
+                        offset = updates[index].update_id + 1;
+                        continue;
+                    }
 
+                    ret = city_info_parser(message.text, &lat, &lng);
                     switch (ret) {
                         case INVALID_PARAM:
                             printf("Invalid parameters for parsing city info!\n");
@@ -72,45 +86,25 @@ int run_weatherbot(char* token) {
                                      message.text);
                             break;
                         case VALID_GEOCODE:
-                            /* Check first if the requeste location was already cached */
-                            temperature = find_city_info_cached(NULL, lat, lng);
-                            if (temperature != TEMPERATURE_NOT_CACHED)
-                            {
-                                snprintf(str, SIZE_OF_ARRAY(str), "Current temperature for <b>%f:%f:</b> is: <b>%2.1lf</b>°C", lat, lng, temperature);
-                                break;
-                            }
                             temperature = get_city_temperature_by_geometry(lat, lng);
+                            cache_city_info(message.text, temperature);
                             snprintf(str, SIZE_OF_ARRAY(str), "Current temperature for <b>%f:%f:</b> is: <b>%2.1lf</b>°C", lat, lng, temperature);
                             break;
                         case VALID_STRING:
-                            /* Check first if the requeste location was already cached */
-                            temperature = find_city_info_cached(message.text, lat, lng);
-                            if (temperature != TEMPERATURE_NOT_CACHED)
-                            {
-                                snprintf(str, SIZE_OF_ARRAY(str), "Current temperature for <b>%s</b> is: <b>%2.1lf</b>°C", message.text, temperature);
-                                break;
-                            }
-
                             ret = is_city_name_valid(message.text);
                             if (ret) {
                                 snprintf(str, SIZE_OF_ARRAY(str), "Sorry! <b>%s</b> is not a valid city name!", message.text);
                             } else {
-                                /* Check first if the requeste location was already cached */
-                                temperature = find_city_info_cached(message.text, lat, lng);
-                                if (temperature == TEMPERATURE_NOT_CACHED)
-                                {
-                                    temperature = get_city_temperature_by_name(message.text);
-                                    cache_city_info(message.text, lat, lng, temperature);
-                                } else {
-                                    temperature = ret;
-                                }
+                                temperature = get_city_temperature_by_name(message.text);
                                 snprintf(str, SIZE_OF_ARRAY(str), "Current temperature for <b>%s</b> is: <b>%2.1lf</b>°C", message.text, temperature);
+                                cache_city_info(message.text, temperature);
                             }
                             break;
                         default:
                             break;
                     }
                 }
+
                 telebot_ret = telebot_send_message(handle, message.chat->id, str, "HTML", false, false, updates[index].message.message_id, "");
 
                 if (telebot_ret != TELEBOT_ERROR_NONE)
@@ -123,7 +117,6 @@ int run_weatherbot(char* token) {
             sleep(1);
         }
         telebot_put_updates(updates, count);
-        sleep(1);
     }
     telebot_destroy(handle);
 }
