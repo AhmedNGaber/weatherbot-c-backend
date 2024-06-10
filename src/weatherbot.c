@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <unistd.h>
-#include <pthread.h>
 #include <apr_file_io.h>
 #include "weatherbot.h"
 
@@ -55,13 +54,8 @@ int main(int argc, char *argv[]) {
     printf("Welcome to weathocastbot\n");
     printf("Token: %s\n", token);
 
-    /* run init_cache_invalidate_cache_thread in a thread */
-    pthread_t thread;
-    ret = pthread_create(&thread, NULL, init_cache_invalidate_cache_thread, NULL);
-    if (ret != 0) {
-        fprintf(stderr, "Error creating thread\n");
-        goto exit;
-    }
+    /* Initialize the used cache for this locations info and the associated tempereture */
+    cache_init();
 
     ret = run_weatherbot(token);
     if (ret != 0)

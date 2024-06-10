@@ -17,10 +17,10 @@
 #define SIZE_OF_ARRAY(array) (sizeof(array) / sizeof(array[0]))
 #define TOKEN_MAX_SIZE 128
 
+void cache_init(void);
 int run_weatherbot(char* token);
 int city_info_parser(const char* message, float* lat, float* lng);
 bool find_city_info_cached(const char* city_name, float* temperature);
 void cache_city_info(const char* city_name, float temperature);
-void* init_cache_invalidate_cache_thread(void *);
 
 #endif // WEATHERBOT_H

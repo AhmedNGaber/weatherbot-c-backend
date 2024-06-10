@@ -41,7 +41,8 @@ make
 ```
 
 ## Open Points
-  - Recheck the design while impemnting the cache functions to use multi-threaded approach to run some parts in parallel
+  - replace all used std libs with the corresponding available in APR1 lib 
 ### Done
   - Implementing caching the data to not request it again:- City Name, latitude, Longitude and their temperature
+  - Recheck the design after implementing the cache functions to use multi-threaded approach to run some parts in parallel
 
