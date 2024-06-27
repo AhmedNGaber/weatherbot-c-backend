@@ -1,8 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdbool.h>
-#include <math.h>
 #include <apr_pools.h>
 #include <apr_strings.h>
 #include <apr_thread_proc.h>
@@ -23,7 +18,7 @@ city_info_t * city_info;
 /* Global variables */
 static apr_pool_t *cache_pool = NULL;
 static apr_pool_t *cache_nodes_pool = NULL;
-static bool cache_initialized = false;
+static apr_uint32_t cache_initialized = 0;
 static apr_cache_entry_t *cache_head = NULL;
 static apr_thread_mutex_t *cache_mutex = NULL;
 static apr_thread_t *cache_clean_thread = NULL;
@@ -45,7 +40,7 @@ void cache_init(void)
     /* run init_cache_invalidate_cache_thread in a thread */
     apr_thread_create(&cache_clean_thread, NULL, init_cache_invalidate_cache_thread, NULL, cache_pool);
    
-    cache_initialized = true;
+    cache_initialized = 1;
 }
 
 /* The passed pointer should already be allocated before using cache_insert */
@@ -61,7 +56,7 @@ static void cache_insert(city_info_t *city_info) {
 static void cache_cleanup() {
     if (!cache_initialized)
         return;
-    /* destroy the entire cache pool, then create it from the beginning*/
+    /* destroy the entire cache weatherbot_pool, then create it from the beginning*/
     apr_pool_destroy(cache_nodes_pool);
     apr_pool_create(&cache_nodes_pool, cache_pool);
     cache_head = NULL;
@@ -79,7 +74,7 @@ bool find_city_info_cached(const char* city_name, float* temperature) {
     /* Find the city information in the cache startting from cache_head */
     apr_cache_entry_t *entry = cache_head;
 
-    printf("find_city_info_cached city_name: %s, \n", city_name);
+    DEBUG_PRINT("find_city_info_cached city_name: %s, \n", city_name);
 
     apr_thread_mutex_lock (cache_mutex);
     while (entry != NULL) {
@@ -92,7 +87,7 @@ bool find_city_info_cached(const char* city_name, float* temperature) {
         entry = entry->next;
     }
     apr_thread_mutex_unlock (cache_mutex);
-    printf("find_city_info_cached not found\n");
+    DEBUG_PRINT("find_city_info_cached not found\n");
     return false;
 }
 
@@ -123,7 +118,7 @@ void* init_cache_invalidate_cache_thread(apr_thread_t * self, void * data)
 {
     do
     {
-        printf("init_cache_invalidate_cache_thread\n");
+        DEBUG_PRINT("init_cache_invalidate_cache_thread\n");
         /* invalidate the cache each 30 mins*/
         apr_sleep(1800000000);
         apr_thread_mutex_lock (cache_mutex);

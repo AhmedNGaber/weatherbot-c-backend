@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <unistd.h>
 #include <apr_file_io.h>
 #include "weatherbot.h"
 
@@ -7,7 +5,7 @@
 int main(int argc, char *argv[]) {
 
     apr_status_t apr_ret;
-    apr_pool_t *pool;
+    apr_pool_t *weatherbot_pool;
     apr_file_t *file;
     apr_size_t len= TOKEN_MAX_SIZE;
     char errbuf[128];
@@ -15,51 +13,42 @@ int main(int argc, char *argv[]) {
     int ret;
 
     apr_ret = apr_initialize();
-    if( apr_ret != APR_SUCCESS ){
-        fprintf(stderr, "Error initializing APR\n");
-        goto apr_error;
-    }
+    apr_ret = apr_pool_create_core(&weatherbot_pool);
 
-    apr_ret = apr_pool_create(&pool, NULL);
+    apr_ret = apr_file_open(&file, ".token", APR_READ, APR_OS_DEFAULT, weatherbot_pool);
     if (apr_ret != APR_SUCCESS){
-        fprintf(stderr, "Error creating memory pool\n");
-        goto apr_error;
-    }
-
-    apr_ret = apr_file_open(&file, ".token", APR_READ, APR_OS_DEFAULT, pool);
-    if (apr_ret != APR_SUCCESS){
-        fprintf(stderr, "Error opening .token file\n");
+        DEBUG("Error opening .token file\n");
         goto apr_error;
     }
 
     apr_ret = apr_file_read(file, token, &len);
     if (apr_ret != APR_SUCCESS){
-        fprintf(stderr, "Error reading token file\n");
+        DEBUG("Error reading token file\n");
         goto apr_error;
     }
 
     apr_ret = apr_file_close(file);
     if (apr_ret != APR_SUCCESS) {
-        fprintf(stderr, "Error closing token file\n");
+        DEBUG("Error closing token file\n");
         goto apr_error;
     }
 
     if (strlen(token) == 0 || len == 0){
-        fprintf(stderr, "Token file is empty or invalid\n");
+        DEBUG("Token file is empty or invalid\n");
         goto apr_error;
     }
 
     token[strlen(token)-1] = '\0';
 
-    printf("Welcome to weathocastbot\n");
-    printf("Token: %s\n", token);
+    DEBUG_PRINT("Welcome to weathocastbot\n");
+    DEBUG_PRINT("Token: %s\n", token);
 
     /* Initialize the used cache for this locations info and the associated tempereture */
     cache_init();
 
     ret = run_weatherbot(token);
     if (ret != 0)
-        fprintf(stderr, "Error running weatherbot\n");
+        DEBUG("Error running weatherbot\n");
 
     goto exit;
 
@@ -68,7 +57,7 @@ apr_error:
     fprintf(stderr,"apr: %s\n", errbuf);
 
 exit:
-    apr_pool_destroy(pool);
+    apr_pool_destroy(weatherbot_pool);
     apr_terminate();
     return apr_ret;
 }

@@ -60,7 +60,7 @@ int main() {
     test_find_city_info_cached();
     test_cache_city_info();
 
-    printf("All tests passed!\n");
+    DEBUG_PRINT("All tests passed!\n");
 
     return 0;
 }

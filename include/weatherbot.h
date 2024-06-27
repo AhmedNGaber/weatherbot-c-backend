@@ -17,6 +17,14 @@
 #define SIZE_OF_ARRAY(array) (sizeof(array) / sizeof(array[0]))
 #define TOKEN_MAX_SIZE 128
 
+#define DEBUG
+
+#ifdef DEBUG
+#include <stdio.h>
+
+#define DEBUG_PRINT(...) printf(__VA_ARGS__)
+#endif
+
 void cache_init(void);
 int run_weatherbot(char* token);
 int city_info_parser(const char* message, float* lat, float* lng);
